@@ -11,6 +11,6 @@
 
 * [登陆框组件](https://github.com/woai30231/common-component/tree/master/1)
 
-* [提示框组件]()
+* [提示框组件](https://github.com/woai30231/common-component/tree/master/2)
 
 * [加载进度条组件]()
