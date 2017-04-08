@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="Zh-cn">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="Chrome=1.0,IE=edge" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+	<meta name="description" content=""/>
+	<meta name="Keywords" content=""/>
+	<meta name="renderer" content=""/>
+	<title>登陆</title>
+	<script type="text/javascript">
+		(function(){
+			//页面设配
+			var doc = document.documentElement || document.body;
+			var _width = doc.offsetWidth;
+			_width = _width>640?640:_width;
+			doc.style.fontSize = _width/6.4 + 'px';
+			//添加页面自动触发点击背景色行为
+			function addEvent(dom,type,handler){
+				return dom.addEventListener?dom.addEventListener(type,handler,false):dom.attactEvent("on"+type,handler);
+			};
+
+			addEvent(window,'touchstart',function(){});
+		})();
+	</script>
+	<style type="text/css">
+	/*****
+	*
+	*
+	*浏览器重置样式
+	*
+	******/
+		body{
+			font-size:14px;
+			font-family:"Microsoft YaHei",Verdana,Arial,Helvetica,sans-serif;
+			color:#333;
+			display:block;
+			background-color:rgba(0,0,0,1);
+			margin:0px;
+			padding:0px;
+		}
+		div,em,strong,p,span,a,input,ol,header,footer,article,aside,section,nav,table,tbody,tr,td,tbody,thead,mark,ul,li,ol,form{
+			margin:0px;
+			padding:0px;
+			vertical-align:baseline;
+			border:0px;
+			font:inherit;
+		}
+		a{
+			text-decoration:none;
+			color:inherit;
+		}
+		img{
+			border:0px;
+		}
+		button,input{
+			outline:none;
+			-webkit-appearance:none;
+		}
+		*{
+			-webkit-box-sizing:border-box;
+			-moz-box-sizing:border-box;
+			box-sizing:border-box;
+			-webkit-text-size-adjust:100%!important;
+			text-size-adjust:100%!important;
+			-webkit-tap-highlight-color:rgba(0,0,0,0)!important;
+			tap-highlight-color:rgba(0,0,0,0)!important;
+		}
+		/*自适应图片*/
+		.img-responsive{
+			display:block;
+			max-width:100%;
+			height:auto;
+			margin:0px auto;
+		}
+		/*文字省略显示*/
+		.text-ellipsis{
+			display:block;
+			overflow:hidden;
+			-webkit-text-overflow:ellipsis;
+			-o-text-overflow:ellipsis;
+			word-break:break-all;
+			white-space:nowrap;
+		}
+		/*dlm活动背景样色即默认样式*/
+		.dlm-bg-container{
+			width:6.4rem;
+			margin:0px auto;
+			background-color:rgba(0,0,0,1);
+			padding-bottom:15px;
+		}
+		/*圆角样式*/
+		.border-radius-little{
+			-webkit-border-radius:0.15rem;
+			-moz-border-radius:0.15rem;
+			-ms-border-radius:0.15rem;
+			-o-border-radius:0.15rem;
+			border-radius:0.15rem;
+		}
+		/*清除paddnig-bottom*/
+		.padding-bottom-none{
+			padding-bottom:0px!important;
+		}
+		/*盒子样式*/
+		.sc-box{
+			margin:0px auto;
+			width:6.4rem;
+			overflow:hidden;
+		}
+
+
+
+		/***
+		*
+		*
+		*登陆窗样式
+		*
+		* css命名规范采用bem(Block Element Modified)
+		*
+		****/
+
+		.sc-login-box{
+			min-width:100%;
+			min-height:100%;
+			position:fixed;
+			z-index:9;
+			background: #e6e77b;
+			background: -moz-linear-gradient(top,  #e6e77b 0%, #647569 100%);
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e6e77b), color-stop(100%,#647569));
+			background: -webkit-linear-gradient(top,  #e6e77b 0%,#647569 100%);
+			background: -o-linear-gradient(top,  #e6e77b 0%,#647569 100%);
+			background: -ms-linear-gradient(top,  #e6e77b 0%,#647569 100%);
+			background: linear-gradient(to bottom,  #e6e77b 0%,#647569 100%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#647569',GradientType=0 );
+		}
+		:root .sc-login-box{filter:none;}
+		.sc-login{
+			position:absolute;
+			left:50%;
+			top:50%;
+			-webkit-transform:translate(-50%,-50%);
+			-moz-transform:translate(-50%,-50%);
+			-ms-transform:translate(-50%,-50%);
+			-o-transform:translate(-50%,-50%);
+			transform:translate(-50%,-50%);
+			max-width:280px;
+			width:80%;
+			color:#333;
+			line-height:2.0em;
+			font-weight:normal;
+			background-color:#fff;
+			-webkit-border-radius:0.10rem;
+			-moz-border-radius:0.10rem;
+			-o-border-radius:0.10rem;
+			border-radius:0.10rem;
+		}
+		.sc-login__title{
+			line-height:40px;
+			font-size:16px;
+			padding:0px 8px;
+			border-bottom:1px solid #e0e0e0;
+			margin:0px;
+		}
+		.sc-login__input{
+			padding:0px 8px;
+			padding-bottom:1px;
+			border-bottom:1px solid #e0e0e0;
+		}
+		.sc-login__input > label{
+			display:block;
+			overflow:hidden;
+			line-height:30px;
+			font-size:14px;
+			margin:8px 0px;
+			position:relative;
+			padding-left:3.0em;
+		}
+		.sc-login__input .label{
+			display:block;
+			position:absolute;
+			left:0px;
+			top:0px;
+			width:3.0em;
+			z-index:1;
+		}
+		.sc-login__input .input{
+			border:1px solid #e0e0e0;
+			width:100%;
+			padding:4px 6px;
+			line-height:20px;
+			-webkit-border-radius:3px;
+			-moz-border-radius:3px;
+			-o-border-radius:3px;
+			border-radius:3px;
+		}
+		.sc-login__btn{
+			overflow:hidden;
+			line-height:45px;
+			text-align:center;
+			font-size:15px;
+			color:#333;
+		}
+		.sc-login__btn .btn{
+			display:block;
+			width:50%;
+			float:left;
+		}
+		.sc-login__btn .btn:first-child{
+			border-right:1px solid #e0e0e0;
+		}
+		.sc-login__btn .btn:active{
+			background-color:#eee;
+			color:#fff;
+		}
+	</style>
+</head>
+<body>
+
+<!--包装容器 _start-->
+<div class="sc-box sc-login-box">
+	<div class="sc-login" id="sc-login">
+		<h2 class="text-ellipsis sc-login__title">登陆</h2>
+		<div class="sc-login__input">
+			<label><span class="label">账号：</span><input class="input" type="text" placeholder="请填写账号"/></label>
+			<label><span class="label">密码：</span><input class="input" type="password" placeholder="请填写密码"/></label>
+		</div>
+		<div class="sc-login__btn">
+			<a class="login_cancel btn" href="javascript:void(0);" title="#">取消</a>
+			<a class="login_ensure btn" href="javascript:void(0);" title="#">确定</a>
+		</div>
+	</div>
+</div>
+<!--包装容器 _end-->
+<!-- <script type="text/javascript" src="./js/jquery.min.js"></script> -->
+<!--进度条js-->
+<!-- <script type="text/javascript" src="./js/process.js"></script> -->
+<script type="text/javascript">
+	/**
+	*
+	* 向外暴露一个接口Login，为了减少命名冲突，相关操作在其实例属性或者方法上执行
+	*
+	**/
+	function Login(){
+		this.init.apply(this,arguments);
+	};
+	Login.prototype = {
+		/***
+		*id参数用于获取login弹窗
+		*config用于设置相关回调参数等
+		*/
+		init:function(id,config){
+			var login_dom = (typeof id === 'string')?document.getElementById(id):id;
+			if(!login_dom){
+				return;
+			};
+			//登陆框隐藏操作
+			function hide(){
+				login_dom.style.display = 'none';
+			};
+			//点击取消按钮操作
+			login_dom.querySelector('.login_cancel').onclick = function(){
+				hide();
+				if(config.cancel){
+					config.cancel();
+				};
+			};
+			//点击确定按钮操作
+			login_dom.querySelector('.login_ensure').onclick = function(){
+				hide();
+				if(config.ensure){
+					config.ensure();
+				};
+			};
+		}
+	};
+
+	//注：实际使用过程中，根据需要写在window.onload或jquery的$回调函数里面调用
+	setTimeout(function(){
+		//调用
+		new Login('sc-login',{
+			cancel:function(){
+				//点击取消按钮脚本 goes here
+				console.log('取消');
+			},
+			ensure:function(){
+				//点击确定按钮脚本 goes here
+				console.log('确定');
+			}
+		});
+
+	},0);
+</script>
+</body>
+</html>
