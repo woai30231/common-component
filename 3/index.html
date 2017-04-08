@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="Zh-cn">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="Chrome=1.0,IE=edge" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+	<meta name="description" content=""/>
+	<meta name="Keywords" content=""/>
+	<meta name="renderer" content=""/>
+	<title>进度条样式组件</title>
+	<script type="text/javascript" src="./process.js"></script>
+	<script type="text/javascript">
+		(function(){
+			//页面设配
+			var doc = document.documentElement || document.body;
+			var _width = doc.offsetWidth;
+			_width = _width>640?640:_width;
+			doc.style.fontSize = _width/6.4 + 'px';
+			//添加页面自动触发点击背景色行为
+			function addEvent(dom,type,handler){
+				return dom.addEventListener?dom.addEventListener(type,handler,false):dom.attactEvent("on"+type,handler);
+			};
+
+			addEvent(window,'touchstart',function(){});
+		})();
+	</script>
+	<style type="text/css">
+		/*****
+		*
+		*
+		*浏览器重置样式
+		*
+		******/
+			body{
+				font-size:14px;
+				font-family:"Microsoft YaHei",Verdana,Arial,Helvetica,sans-serif;
+				color:#333;
+				display:block;
+				background-color:rgba(0,0,0,1);
+				margin:0px;
+				padding:0px;
+			}
+			div,em,strong,p,span,a,input,ol,header,footer,article,aside,section,nav,table,tbody,tr,td,tbody,thead,mark,ul,li,ol,form{
+				margin:0px;
+				padding:0px;
+				vertical-align:baseline;
+				border:0px;
+				font:inherit;
+			}
+			a{
+				text-decoration:none;
+				color:inherit;
+			}
+			img{
+				border:0px;
+			}
+			button,input{
+				outline:none;
+				-webkit-appearance:none;
+			}
+			*{
+				-webkit-box-sizing:border-box;
+				-moz-box-sizing:border-box;
+				box-sizing:border-box;
+				-webkit-text-size-adjust:100%!important;
+				text-size-adjust:100%!important;
+				-webkit-tap-highlight-color:rgba(0,0,0,0)!important;
+				tap-highlight-color:rgba(0,0,0,0)!important;
+			}
+			/*自适应图片*/
+			.img-responsive{
+				display:block;
+				max-width:100%;
+				height:auto;
+				margin:0px auto;
+			}
+			/*文字省略显示*/
+			.text-ellipsis{
+				display:block;
+				overflow:hidden;
+				-webkit-text-overflow:ellipsis;
+				-o-text-overflow:ellipsis;
+				word-break:break-all;
+				white-space:nowrap;
+			}
+			/*dlm活动背景样色即默认样式*/
+			.dlm-bg-container{
+				width:6.4rem;
+				margin:0px auto;
+				background-color:rgba(0,0,0,1);
+				padding-bottom:15px;
+			}
+			/*圆角样式*/
+			.border-radius-little{
+				-webkit-border-radius:0.15rem;
+				-moz-border-radius:0.15rem;
+				-ms-border-radius:0.15rem;
+				-o-border-radius:0.15rem;
+				border-radius:0.15rem;
+			}
+			/*清除paddnig-bottom*/
+			.padding-bottom-none{
+				padding-bottom:0px!important;
+			}
+			/*盒子样式*/
+			.sc-box{
+				margin:0px auto;
+				width:6.4rem;
+				overflow:hidden;
+			}
+	</style>
+</head>
+<body>
+
+<script type="text/javascript">
+	//显示进度提示
+	_process.show();
+	//关闭进度提示
+	_process.hide();
+</script>
+</body>
+</html>
