@@ -2,8 +2,8 @@
 
 * 包含一下概念
 
-_ 1、css概念：Block、Element、Modified
+> 1、css概念：Block、Element、Modified
 
-_ 2、js Object.prototype
+> 2、js Object.prototype
 
-_ 3、js回调函数
+> 3、js回调函数
