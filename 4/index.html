@@ -53,6 +53,8 @@
 		<button id="singleSpec">添加商品型号</button>
 		<button id="add_spec">添加多级型号</button>
 	</div>
+
+	<a id="out_data_to_back" style="display:block;width:100%;line-height:60px;background-color:#c00;color:#fff;text-align:center;margin:15px 0px;" href="javascript:void(0);" title="#">向后台产出数据</a>
 </div>
 
 <!--弹框 start-->
@@ -78,34 +80,129 @@
 </div>
 <!--弹框 end-->
 <script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="index.js"></script>
 <script type="text/javascript">
+	console.log(interface_data_arr);
 	//这里模拟一个后台数据
 	var alternative_models_data = [
 		//尺寸
-		{
-			model_name:'尺寸',
-			alternative_data:['X','S','M'],
-			is_currentUse:false	
-		},
-		//颜色
-		{
-			model_name:'颜色',
-			alternative_data:['红色','绿色','蓝色'],
-			is_currentUse:false
-		},
-		//内存
-		{
-			model_name:'内存',
-			alternative_data:['8G','16G'],
-			is_currentUse:false
-		}
+		// {
+		// 	model_name:'尺寸',
+		// 	alternative_data:['X','S','M'],
+		// 	is_currentUse:false	
+		// },
+		// //颜色
+		// {
+		// 	model_name:'颜色',
+		// 	alternative_data:['红色','绿色','蓝色'],
+		// 	is_currentUse:false
+		// },
+		// //内存
+		// {
+		// 	model_name:'内存',
+		// 	alternative_data:['8G','16G'],
+		// 	is_currentUse:false
+		// }
 
 	];
+	//组合后台数据到规定数据
+	(function(){
+		for(var i = 0,len = interface_data_arr.length;i<len;i++){
+			var obj = {};
+			obj.model_name = interface_data_arr[i].model_name;
+			obj.alternative_data = [];
+			obj.is_currentUse = false;
+			for(var j = 0,len1 = interface_data_arr[i].attr_value.length;j<len1;j++){
+				obj.alternative_data.push(interface_data_arr[i].attr_value[j].alternative_name);
+			};
+			alternative_models_data.push(obj);
+		};
+	})();
+	console.log(alternative_models_data);
 
+
+	//向后台最终提交的数据
+	$("#out_data_to_back").click(function(){
+		//主要思路就是遍历当前表格，用表头值作属性，用表格值作属性值，
+		var arr = [];
+		$("#sp__table tbody tr").each(function(){
+			var $this = $(this);
+			var obj = {};
+			//属性与属性值id集合
+			var type_ref_arr = [];
+			//属性与属性值value集合
+			var type_value_arr = [];
+			var $index = $("#sp__table tbody tr").index($(this));
+			var $len = $("#sp__table tbody tr").length;
+			if($len-1 == $index){
+				return;
+			};
+			$this.children('td').each(function(){
+				var $index = $this.children('td').index($(this));
+				var $len = $this.children('td').length;
+				if($index == ($len - 3)){
+					//价格
+					obj.price = $(this).children('input[origin-data="jg"]').val();
+				}else if($index == ($len - 2)){
+					//库存
+					obj.skuStock = $(this).children('input[origin-data="kc"]').val();
+				}else if($index == ($len - 1)){
+					//编码
+					obj.goodsCode = $(this).children('input[origin-data="bm"]').val();
+				}else{
+					//获取表头值
+					var a = $("#sp__table thead tr th").eq($index).attr('origin-data');
+					//获取属性id
+					var type_id = get_type_id(a);
+					//获取属性值
+					var b = $(this).text();
+					//获取属性值id
+					var type_value_id = get_type_value_id(a,b);
+					type_ref_arr.push(type_id+':'+type_value_id);
+					type_value_arr.push(a+':'+b);
+				};				
+			});
+			obj.imgUrl = null;
+			obj.attrIds = type_ref_arr.join(';');
+			obj.attrValues = type_value_arr.join(';');
+			// console.log(type_ref_arr);
+			// console.log(type_value_arr);
+			arr.push(obj);
+		});
+		console.log(arr);
+	});
+	//获取属性id
+	function get_type_id(type){
+		var r_v;
+		for(var i = 0,len = interface_data_arr.length;i<len;i++){
+			if(type == interface_data_arr[i].model_name){
+				r_v = interface_data_arr[i].id;
+				break;
+			};
+		};
+		return r_v;
+	};
+	//获取属性值id
+	function get_type_value_id(type,type_value){
+		var r_v;
+		for(var i = 0,len = interface_data_arr.length;i<len;i++){
+			if(type == interface_data_arr[i].model_name){
+				for(var j = 0,len1 = interface_data_arr[i].attr_value.length;j<len1;j++){
+					if(type_value == interface_data_arr[i].attr_value[j].alternative_name){
+						r_v = interface_data_arr[i].attr_value[j].id;
+						break;
+					};
+				};
+				break;
+			};
+		};
+		return r_v;
+	};
 	//模拟数据的深赋值，用于保存更改之前的原有数据
 	//默认值为null
 	var origin_mock_data = null; 
 	$(function(){
+		// return;
 		//添加商品型号
 		//是否单一商品型号
 		var isSingle = true;
