@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="Zh-cn">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1.0"/>
+	<meta name="webkit" content="renderer"/>
+	<meta name="Keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="reset.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<title>商品属性规格添加</title>
+</head>
+<body>
+<div class="SP">
+	<div id="primary_data_wrap">
+		<div class="sp__item">
+			<h4>商品价格</h4>
+			<input type="text"/>元
+		</div>
+		<div class="sp__item">
+			<h4>商品价格</h4>
+			<input type="text"/>件
+		</div>
+		<div class="sp__item">
+			<h4>商品编码</h4>
+			<input type="text" placeholder="选填，用于商家系统后台对接"/>件
+		</div>
+	</div>
+	<div id="second_data_wrap">
+		<div class="sp__item">
+			<h4>商品规格</h4>
+			<div class="mup-spec" id="mup-spec">
+<!-- 				<div class="mup-spec__item" origin-ref-data="颜色">
+					<h5>颜色：</h5>
+					<div class="_nav">
+						<ul><li class="active" origin-data="红色">红色</li><li origin-data="绿色">绿色</li></ul>
+					</div>
+					<div><input type="text"/><button>新建</button></div>
+				</div> -->
+			</div>
+		</div>
+		<div class="sp__item" id="change_wrap2">
+			<button>修改多级型号</button>
+		</div>
+	</div>
+	<div class="sp__item">
+		<h4 id="yc_title" style="display:none;">商品型号</h4>
+		<table id="sp__table">
+		</table>
+	</div>
+	<div class="sp__item" id="change_wrap1">
+		<h4>商品规格</h4>
+		<button id="singleSpec">添加商品型号</button>
+		<button id="add_spec">添加多级型号</button>
+	</div>
+</div>
+
+<!--弹框 start-->
+<div class="tk" id="tk">
+	<div class="tk__mask"></div>
+	<div class="tk__wrap">
+		<h2 class="tk__title">选择商品型号</h2>
+		<div class="tk__option">
+			<ul id="a_m">
+<!-- 				<li>内存</li>
+				<li>尺寸</li>
+				<li>颜色</li> -->
+			</ul>
+			<div class="_input">
+				<input id="new_spec_input" type="text"/><a id="add_new_spec" class="btn" href="javascript:void(0);" title="#">新建</a>
+			</div>
+		</div>
+		<div class="tk__bottom">
+			<button id="jmclose_tk" type="button">取消</button>
+			<button id="close_tk" type="button" class="ensure">确定</button>
+		</div>
+	</div>
+</div>
+<!--弹框 end-->
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript">
+	//这里模拟一个后台数据
+	var alternative_models_data = [
+		//尺寸
+		{
+			model_name:'尺寸',
+			alternative_data:['X','S','M'],
+			is_currentUse:false	
+		},
+		//颜色
+		{
+			model_name:'颜色',
+			alternative_data:['红色','绿色','蓝色'],
+			is_currentUse:false
+		},
+		//内存
+		{
+			model_name:'内存',
+			alternative_data:['8G','16G'],
+			is_currentUse:false
+		}
+
+	];
+
+	//模拟数据的深赋值，用于保存更改之前的原有数据
+	//默认值为null
+	var origin_mock_data = null; 
+	$(function(){
+		//添加商品型号
+		//是否单一商品型号
+		var isSingle = true;
+		//是否单一型号添加过
+		var singled = false;
+		//是否第一次添加商品多级属性
+		var isFirstTimeAddMulLevel = true;
+		//待更新表格数数据，
+		var will_update_table_data = [];
+		//定义一个更新表格的data模型
+		var update_table_data_model = [];
+		//非正常关闭弹框
+		$("#close_tk").click(function(){
+			if(!is_current_multple_level()){
+				alert('请选择一个分类');
+				return;
+			};
+			$('#tk').fadeOut('slow');
+			var is_data_change = false;
+			//清空table操作
+			//首先如果当前有可以选择型号，就清空table，否则不执行操作
+			//更改脚本，判断当前是否数据模型是否有改动，有则执行脚本，无则退出
+			if(alternative_models_data.length != origin_mock_data.length ){
+				is_data_change = true;
+			}else{
+				for(var $i = 0,len = alternative_models_data.length;$i<len;$i++){
+					if(origin_mock_data[$i].model_name == alternative_models_data[$i].model_name){
+						if(origin_mock_data[$i].is_currentUse != alternative_models_data[$i].is_currentUse){
+							is_data_change = true;
+							break;
+						};
+					};
+				};
+				origin_mock_data = null;
+				origin_mock_data = JSON.parse(JSON.stringify(alternative_models_data));
+			};
+			if(is_data_change){
+				//清空缓存数组
+				update_table_data_model = [];
+				$("#sp__table").empty();
+				$("#mup-spec").empty();
+				if(isFirstTimeAddMulLevel){
+					$("#primary_data_wrap").css('display','none');
+					$("#sp__table").empty();
+					$("#change_wrap1").css('display','block');
+					$("#change_wrap1").css('display','none');				
+					isFirstTimeAddMulLevel = false;
+				};
+				update_table();
+				var crr = get_mul_level_arr();
+				will_update_table_data = [];
+				for(var jn = 0,jlen = crr.length;jn<jlen;jn++){
+					var jobj = {};
+					jobj.model_name = crr[jn];
+					jobj.alternative_data = [];
+					will_update_table_data.push(jobj);
+				};
+				to_render_model();
+			};
+
+		});
+		function will_data_update(){
+			var crr = get_mul_level_arr();
+			will_update_table_data = [];
+			for(var jn = 0,jlen = crr.length;jn<jlen;jn++){
+				var jobj = {};
+				jobj.model_name = crr[jn];
+				jobj.alternative_data = [];
+				will_update_table_data.push(jobj);
+			};
+		};
+		//更新表格
+		function update_table(){
+			var arr = get_mul_level_arr();
+			var str = '';
+			for(var i = 0,len = arr.length;i<len;i++){
+				str += '<th origin-data=\"'+arr[i]+'\">'+arr[i]+'</th>';
+			};
+			str += '<th>价格</th><th>库存</th><th>商品编码</th>';
+			$("<thead><tr>"+str+"</tr></thead>").appendTo($("#sp__table"));
+			$("#sp__table").css('display','table');
+			$("<tbody><tr><td colSpan="+(arr.length+3)+"><div style=\"text-align:center;\">请添加商品规格</div></td></tr></tbody>").appendTo($("#sp__table"));
+		};
+		//用户删除商品属性值
+		$("#mup-spec").on('click','ul li i',function(e){
+			e.stopPropagation();
+			//获取属性、
+			$type = $(this).parent().parent().parent().parent().attr('origin-ref-data');
+			//获取属性值
+			$typeVal = $(this).parent().attr('origin-data');
+			//删除相应属性值
+			for(var i = 0,len = alternative_models_data.length;i<len;i++){
+				if($type == alternative_models_data[i].model_name){
+					for(var j = 0,len1 = alternative_models_data[i].alternative_data.length;j<len1;j++){
+						if(alternative_models_data[i].alternative_data[j] == $typeVal){
+							alternative_models_data[i].alternative_data.splice(j,1);
+							break;
+						};
+					};
+					//重新更新 ul li
+					var str = '';
+					for(var z = 0,len2 = alternative_models_data[i].alternative_data.length;z<len2;z++){
+						str += '<li origin-data=\"'+alternative_models_data[i].alternative_data[z]+'\">'+alternative_models_data[i].alternative_data[z]+'<i></i></li>'
+					};
+					var $parent = $(this).parent().parent();
+					//添加样式
+					$parent.empty();
+					$(str).appendTo($parent);
+					$parent.children('li').each(function(){
+						for(var i = 0,len = will_update_table_data.length;i<len;i++){
+							if($type == will_update_table_data[i].model_name){
+								for(var j = 0,len1 = will_update_table_data[i].alternative_data.length;j<len1;j++){
+									if($(this).attr('origin-data') == will_update_table_data[i].alternative_data[j]){
+										$(this).addClass('active');
+										break;
+									};
+								};
+								break;
+							};
+						};
+					});
+					break;
+				};
+			};
+			//更新will_update_table_data
+			for(var zm = 0,len3 = will_update_table_data.length;zm<len3;zm++){
+				if(will_update_table_data[zm].model_name == $type){
+					for(var jm = 0,len4 = will_update_table_data[zm].alternative_data.length;jm<len4;jm++){
+						if(will_update_table_data[zm].alternative_data[jm] == $typeVal){
+							will_update_table_data[zm].alternative_data.splice(jm,1);
+							break;
+						}
+						// break;
+					};
+					break;
+				};
+			};
+			// console.log(alternative_models_data);
+			update_table_when_click_li();
+
+		});
+		//点击li的时候更新表格
+		function update_table_when_click_li(){
+			var arr = [];
+				var is_null = false;
+				for(var i = 0,len = will_update_table_data.length;i<len;i++){
+					arr.push(will_update_table_data[i].alternative_data);
+					if(will_update_table_data[i].alternative_data.length == 0){
+						is_null = true;
+					}
+				};
+				var brr = get_mul_level_arr();
+				if(arr.length == brr.length &&　!is_null){
+					// var r = allPossibleCases(arr);
+					var rr = combinations(arr);
+					var tempArr = (function(){
+						var arr = [];
+						for(var i = 0,len = rr.length;i<len;i++){
+							var obj = {};
+							obj.dataArray = rr[i];
+							//价格
+							obj.jg = '';
+							//库存
+							obj.kc = '';
+							//编码
+							obj.bm = '';
+							arr.push(obj);
+						};
+						return arr;
+					})();
+					console.log(tempArr);
+					// console.log(rr);
+					$("#sp__table tbody").empty();
+					// insert_data_to_table(rr);
+					//插入之前先做一个对比，不能改动之前的数据
+					get_diff_object_array(tempArr,update_table_data_model);
+					insert_data2_to_table(tempArr);
+					//最后再把这个数据缓存起来
+					update_table_data_model = tempArr;
+				}else{
+					$("#sp__table tbody").empty();
+					$("<tr><td colSpan="+(brr.length+3)+"><div style=\"text-align:center;\">请添加商品规格</div></td></tr>").appendTo($("#sp__table tbody"));
+				};
+		};
+		//对比两个数组对象
+		function get_diff_object_array(arr1,arr2){
+			//arr1 是新产生的数组
+			//arr2 是以前的缓存数组
+			for(var i = 0,len = arr1.length;i<len;i++){
+				for(var j = 0,len1 = arr2.length;j<len1;j++){
+					if(arraysEqual(arr1[i].dataArray,arr2[j].dataArray)){
+						arr1[i].jg = arr2[j].jg;
+						arr1[i].kc = arr2[j].kc;
+						arr1[i].bm = arr2[j].bm;
+						break;
+					};
+				};
+			};
+		};
+		//插入数据到表格模式2
+		function insert_data2_to_table(data){
+			var str = '';
+			for(var i = 0,len = data.length;i<len;i++){
+				var arr = data[i].dataArray;
+				str += '<tr>';
+				for(var j = 0,len1 = arr.length;j<len1;j++){
+					str += '<td>'+arr[j]+'</td>';
+				};
+				var data_ref = data[i].dataArray.join(','); 
+				str += '<td><input data-ref="'+data_ref+'" origin-data=\"jg\" value=\"'+data[i].jg+'\" type="text"/></td><td><input data-ref="'+data_ref+'" value=\"'+data[i].kc+'\" origin-data=\"kc\" type=\"text\"/></td><td><input data-ref="'+data_ref+'" origin-data=\"bm\" value=\"'+data[i].bm+'\" type=\"text\"/></td></tr>';
+			};
+			var _len = get_mul_level_arr().length;
+			str += '<tr><td colSpan=\"'+_len+'\">批量修改</td><td><input id="pljg" type="text"/></td><td><input id="plkc" type="text"/></td><td><input id="plbm" type="text"/></td></tr>'
+			$(str).appendTo($("#sp__table tbody"));
+		};
+		//当表单更新的时候去更新缓存数组
+		$("#sp__table").on('change','input[origin-data="jg"]',function(){
+			var $type = $(this).attr('data-ref');
+			var $val = $(this).val();
+			update_temp_table('jg',$type,$val);
+		});
+		$("#sp__table").on('change','input[origin-data="kc"]',function(){
+			var $type = $(this).attr('data-ref');
+			var $val = $(this).val();
+			update_temp_table('kc',$type,$val);
+		});
+		$("#sp__table").on('change','input[origin-data="bm"]',function(){
+			var $type = $(this).attr('data-ref');
+			var $val = $(this).val();
+			update_temp_table('bm',$type,$val);
+		});
+		function update_temp_table(type,refType,val){
+			for(var i = 0,len = update_table_data_model.length;i<len;i++){
+				var arr = refType.split(',');
+				if(arraysEqual(arr,update_table_data_model[i].dataArray)){
+					update_table_data_model[i][type] = val;
+					break;
+				};
+			};
+			console.log(update_table_data_model);
+		};
+		//用户更新商品属性
+		$("#mup-spec").on('click','ul li',function(){
+			$val = $(this).attr('origin-data');
+			if($(this).hasClass('active')){
+				$(this).removeClass('active');
+			}else{
+				$(this).addClass('active');
+			};
+			//获得当前可使用的商品属性集合
+			//获取属性
+			$attr = $(this).parent().parent().parent().attr('origin-ref-data');
+			//判断will_updata_table_data是否含有$attr属性
+			var is_has_attr = false;
+			var is_REPEAT = false;
+			for(var i = 0,len = will_update_table_data.length;i<len;i++){
+				if(will_update_table_data[i].model_name == $attr){
+					is_has_attr = true;
+					break;
+				};
+			};
+			// console.log(will_update_table_data);
+			if(is_has_attr){
+				for(var j = 0,len1 = will_update_table_data.length;j<len1;j++){
+					if(will_update_table_data[j].model_name == $attr){
+						for(var z = 0,len2 = will_update_table_data[j].alternative_data.length;z<len2;z++){
+							if(will_update_table_data[j].alternative_data[z] == $val){
+								will_update_table_data[j].alternative_data.splice(z,1);
+								is_REPEAT = true;
+								break;
+								return;
+							};
+						};
+						if(!is_REPEAT){
+							will_update_table_data[j].alternative_data.push($val);
+						}
+						break;
+					};
+				};
+			}else{
+				var obj = {};
+				obj.model_name = $attr;
+				obj.alternative_data = [];
+				obj.alternative_data.push($val);
+				will_update_table_data.push(obj);
+			};
+			update_table_when_click_li();
+		});
+		//想向表格里面插入属性
+		function insert_data_to_table(data){
+			var str = '';
+			for(var i = 0,len = data.length;i<len;i++){
+				var arr = data[i];
+				str += '<tr>';
+				for(var j = 0,len1 = arr.length;j<len1;j++){
+					str += '<td>'+arr[j]+'</td>';
+				};
+				str += '<td><input origin-data="jg" type="text"/></td><td><input origin-data="kc" type="text"/></td><td><input origin-data="bm" type="text"/></td></tr>';
+			};
+			var _len = get_mul_level_arr().length;
+			str += '<tr><td colSpan=\"'+_len+'\">批量修改</td><td><input id="pljg" type="text"/></td><td><input id="plkc" type="text"/></td><td><input id="plbm" type="text"/></td></tr>'
+			$(str).appendTo($("#sp__table tbody"));
+		};
+
+		//批量修改操作
+		$("#sp__table").on('change','#pljg',function(){
+			var $val = $(this).val();
+			$("#sp__table input[origin-data='jg']").val($val);
+		});
+		$("#sp__table").on('change','#plkc',function(){
+			var $val = $(this).val();
+			$("#sp__table input[origin-data='kc']").val($val);
+		});
+		$("#sp__table").on('change','#plbm',function(){
+			var $val = $(this).val();
+			$("#sp__table input[origin-data='bm']").val($val);
+		});
+		//用户自定一个更新规格属性
+		$("#mup-spec").on('click','.mup-spec__item button',function(){
+			//获取表单值
+			var $input = $(this).parent().children('input').val();
+			//是否添加重复属性
+			var is_repeat = false;
+			if($input){
+				//获取爷爷节点
+				$grandfather = $(this).parent().parent();
+				//得到爷爷节点的mode
+				$_model = $grandfather.attr('origin-ref-data');
+				for(var i = 0,len = alternative_models_data.length;i<len;i++){
+					if($_model == alternative_models_data[i].model_name){	
+						for(var j = 0,len1 = alternative_models_data[i].alternative_data.length;j<len1;j++){
+							if($input == alternative_models_data[i].alternative_data[j]){
+								is_repeat = true;
+								alert('请不要重复添加属性！');
+								break;
+							};
+						};
+						if(!is_repeat){
+							alternative_models_data[i].alternative_data.push($input);
+							var $dom = $(this).parent().parent().children('._nav').children('ul');
+							$dom.append("<li origin-data=\'"+$input+"\'>"+$input+"<i></i></li>");
+						};
+						break;
+					};
+				};
+			};
+		});
+		//静默地关闭弹框
+		$("#jmclose_tk").click(function(){
+			$("#tk").fadeOut('slow');
+			alternative_models_data = JSON.parse(JSON.stringify(origin_mock_data));
+		});
+		$("#change_wrap2 button").click(function(){
+			origin_mock_data = JSON.parse(JSON.stringify(alternative_models_data));
+			$("#tk").fadeIn('slow');
+			$("#a_m li").each(function(){
+				var type = $(this).attr('origin-data');
+				for(var i= 0,len = alternative_models_data.length;i<len;i++){
+					if(alternative_models_data[i].model_name == type){
+						if(alternative_models_data[i].is_currentUse == true){
+							$(this).addClass('active');
+						}else{
+							$(this).removeClass('active');
+						};
+						break;
+					};
+				};
+			});
+		});
+
+		$("#singleSpec").click(function(){
+			$('#yc_title').css('display','block');
+			if(singled){
+				var str = '<tr>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td>+</td>\n'+
+						'<td>操作</td></tr>';
+				$(str).appendTo($("#sp__table tbody"));
+			}else{
+				$("#primary_data_wrap").css('display','none');
+				$("#sp__table").css('display','table');
+				var str = '<thead><tr>\n'+
+						'<th>型号</th><th>编码</th><th>价格</th><th>库存</th><th>图片</th><th>操作</th>\n'+
+				+'</tr></thead>';
+				str +=  '<tbody><tr>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td><input type=\"text\"/></td>\n'+
+						'<td>+</td>\n'+
+						'<td>操作</td></tr></tbody>';
+				$(str).appendTo($("#sp__table "));
+				singled = true;
+			};
+		});
+
+		//添加多级型号
+		$("#add_spec").click(function(){
+			origin_mock_data = null;
+			origin_mock_data = JSON.parse(JSON.stringify(alternative_models_data));
+			$("#tk").fadeIn('slow');
+			update_tk_list();
+		});
+
+		//更新弹框属性列表
+		function update_tk_list(){
+			$("#a_m").empty();
+			var str = alternative_models_data.map(function(item){
+				if(item.is_currentUse){
+					return "<li class=\"active\" origin-data=\""+item.model_name+"\">"+item.model_name+"<i></i></li>";
+				}else{
+					return "<li origin-data=\""+item.model_name+"\">"+item.model_name+"<i></i></li>";
+				};
+			});
+			str = str.join(' ');
+			$(str).appendTo($("#a_m"));
+		};
+
+		//增加一种型号
+		$("#add_new_spec").click(function(){
+			var val = $("#new_spec_input").val();
+			if(!val){
+				alert('请输入型号名');
+			}else{
+				alternative_models_data.push({
+					model_name:val,
+					alternative_data:[],
+					is_currentUse:false
+				});
+				$("#a_m").append("<li origin-data="+val+">"+val+"<i></i></li>");
+			};
+			
+		});
+
+		//型号的选择操作
+		$("#a_m").on('click','li',function(){
+			var $this = $(this);
+			if($this.hasClass('active')){
+				$this.removeClass('active');
+				change_no_current($this.attr('origin-data'));
+			}else{
+				$this.addClass('active');
+				change_be_current($this.attr('origin-data'));
+			};
+		});
+		$("#a_m").on('click','li i',function(e){
+			//获取属性
+			var $val = $(this).parent().attr('origin-data');
+			for(var i = 0,len = alternative_models_data.length;i<len;i++){
+				if($val == alternative_models_data[i].model_name){
+					alternative_models_data.splice(i,1);
+					break;
+				};
+			};
+			update_tk_list();
+			// console.log(alternative_models_data);
+			e.stopPropagation();
+		});
+		//修改alternative_models_data不是当前的使用型号
+		function change_no_current(data){
+			var origin = alternative_models_data.slice();
+			var arr = origin.map(function(item){
+				if(item.model_name == data){
+					item.is_currentUse = false;
+				};
+				return item;
+			});
+			alternative_models_data = arr;
+		};
+		//增加alternative_models_data不是当前的使用型号
+		function change_be_current(data){
+			var origin = alternative_models_data.slice();
+			var arr = origin.map(function(item){
+				if(item.model_name == data){
+					item.is_currentUse = true;
+				};
+				return item;
+			});
+			alternative_models_data = arr;
+		};
+
+		//判断当前是否选择多级型号操作
+		function is_current_multple_level(){
+			var is_has = false;
+			for(var i = 0,len = alternative_models_data.length;i<len;i++){
+				if(alternative_models_data[i].is_currentUse == true){
+					is_has = true;
+					break;
+				};
+			};
+			return is_has;
+		};
+
+		//得到可用多级商品属性集合
+		function get_mul_level_arr(){
+			var arr = [];
+			for(var i = 0,len = alternative_models_data.length;i<len;i++){
+				if(alternative_models_data[i].is_currentUse == true){
+					arr.push(alternative_models_data[i].model_name);
+				};
+			};
+			return arr;
+		};
+
+		//向页面渲染多型号
+		function to_render_model(){
+			var arr = [];
+			var str = '';
+			for(var i = 0,len = alternative_models_data.length;i<len;i++){
+				if(alternative_models_data[i].is_currentUse == true){
+					arr.push(alternative_models_data[i]);
+				};
+			};
+			if(arr.length > 0){
+				$("#second_data_wrap").css('display','block');
+				for(var j = 0,len1 = arr.length;j<len1;j++){
+					str += '<div class=\"mup-spec__item\" origin-ref-data=\"'+arr[j].model_name+'\">\n'+
+						'<h5>'+arr[j].model_name+'：</h5>\n'+
+						'<div class=\"_nav\">\n'+
+						'<ul>';
+					for(var z = 0,len2 = arr[j].alternative_data.length;z<len2;z++){
+						str += '<li origin-data=\"'+arr[j].alternative_data[z]+'\">\n'+
+							arr[j].alternative_data[z]+'<i></i></li>';
+					};
+					str += '</ul></div>\n'+
+					'<div><input type=\"text\" /><button>新建</button></div></div>';
+				};
+				$(str).appendTo($("#mup-spec"));
+			};
+
+		};
+
+	});
+
+
+
+//得到两个数组之差
+
+
+
+
+// var allArrays = [['a', 'b'], ['c', 'z'], ['d', 'e', 'f']];
+
+ function allPossibleCases(arr) {
+  if (arr.length === 0) {
+    return [];
+  } 
+else if (arr.length ===1){
+return arr[0];
+}
+else {
+    var result = [];
+    var allCasesOfRest = allPossibleCases(arr.slice(1));  // recur with the rest of array
+    for (var c in allCasesOfRest) {
+      for (var i = 0; i < arr[0].length; i++) {
+        result.push((arr[0][i] +','+ allCasesOfRest[c]).split(','));
+      }
+    }
+    return result;
+  }
+
+};
+
+
+
+// Arbitrary base x number class 
+var BaseX = function(initRadix){
+    this.radix     = initRadix ? initRadix : 1;    
+    this.value     = 0;
+    this.increment = function(){
+        return( (this.value = (this.value + 1) % this.radix) === 0);
+    }
+};
+
+function combinations(input){
+    var output    = [],    // Array containing the resulting combinations
+        counters  = [],    // Array of counters corresponding to our input arrays
+        remainder = false, // Did adding one cause the previous digit to rollover?
+        temp;              // Holds one combination to be pushed into the output array
+
+    // Initialize the counters
+    for( var i = input.length-1; i >= 0; i-- ){
+        counters.unshift(new BaseX(input[i].length));
+    }
+
+    // Get all possible combinations
+    // Loop through until the first counter rolls over
+    while( !remainder ){
+        temp      = [];   // Reset the temporary value collection array
+        remainder = true; // Always increment the last array counter
+
+        // Process each of the arrays
+        for( i = input.length-1; i >= 0; i-- ){
+            temp.unshift(input[i][counters[i].value]); // Add this array's value to the result
+
+            // If the counter to the right rolled over, increment this one.
+            if( remainder ){
+                remainder = counters[i].increment();
+            }
+        }
+        output.push(temp); // Collect the results.
+    }
+
+    return output;
+};
+
+// Input is an array of arrays
+// console.log(combinations([[0,1], [0,1,2,3], [0,1,2]]));
+// var r=allPossibleCases(allArrays);
+// console.log(r);
+
+
+
+function arraysEqual(arr1, arr2) {
+    if(arr1.length !== arr2.length)
+        return false;
+    for(var i = arr1.length; i--;) {
+        if(arr1[i] !== arr2[i])
+            return false;
+    }
+
+    return true;
+};
+</script>
+</body>
+</html>
