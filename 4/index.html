@@ -80,9 +80,14 @@
 </div>
 <!--弹框 end-->
 <script type="text/javascript" src="jquery.min.js"></script>
-<script type="text/javascript" src="index.js"></script>
+<script type="text/javascript" src="index1.js"></script>
 <script type="text/javascript">
-	console.log(interface_data_arr);
+	// console.log(interface_data_arr);
+	//定义一个变量用于获取商品是否默认含有规格，默认为false
+	var is_sp_has_default_spec = false;
+	is_sp_has_default_spec = table?table.length>=1:false;
+	//定义一个数组用于存储商品默认规格数据
+	var sp_spec_default_data = table?table:[];
 	//这里模拟一个后台数据
 	var alternative_models_data = [
 		//尺寸
@@ -111,14 +116,15 @@
 			var obj = {};
 			obj.model_name = interface_data_arr[i].model_name;
 			obj.alternative_data = [];
-			obj.is_currentUse = false;
+			// obj.is_currentUse = false;
+			obj.is_currentUse = interface_data_arr[i].is_currentUse;
 			for(var j = 0,len1 = interface_data_arr[i].attr_value.length;j<len1;j++){
 				obj.alternative_data.push(interface_data_arr[i].attr_value[j].alternative_name);
 			};
 			alternative_models_data.push(obj);
 		};
 	})();
-	console.log(alternative_models_data);
+	// console.log(alternative_models_data);
 
 
 	//向后台最终提交的数据
@@ -169,7 +175,7 @@
 			// console.log(type_value_arr);
 			arr.push(obj);
 		});
-		console.log(arr);
+		// console.log(arr);
 	});
 	//获取属性id
 	function get_type_id(type){
@@ -202,7 +208,6 @@
 	//默认值为null
 	var origin_mock_data = null; 
 	$(function(){
-		// return;
 		//添加商品型号
 		//是否单一商品型号
 		var isSingle = true;
@@ -214,6 +219,83 @@
 		var will_update_table_data = [];
 		//定义一个更新表格的data模型
 		var update_table_data_model = [];
+		//获取默认商品规格库存、价格及编码等信息
+		//如果商品默认含有规格，那么就要显示表格
+		(function(){
+			if(is_sp_has_default_spec){
+				$("#primary_data_wrap").css('display','none');
+				$("#second_data_wrap").css('display','block');
+				$("#change_wrap1").css('display','none');
+				init_table_spec();
+				var arr = sp_spec_default_data;
+				var brr = will_update_table_data;
+				//attrValues DATA
+				var attrValuesArr = [];
+				(function(){
+					for(var i = 0,len = arr.length;i<len;i++){
+						var attrValues = arr[i].attrValues.split(';');
+						attrValuesArr.push(attrValues);
+					};
+				})();
+				(function(){
+					for(var i = 0,len = brr.length;i<len;i++){
+						for(var j = 0,le1 = attrValuesArr.length;j<le1;j++){
+							var crr = attrValuesArr[j];
+							for(var z = 0,le2 = crr.length;z<le2;z++){
+								var attStr = crr[z].replace(/:.*$/gi,'');
+								if(will_update_table_data[i].model_name == attStr){
+									will_update_table_data[i].alternative_data.push(crr[z].replace(/^.*:/gi,''));
+								};
+							};
+						};
+					};
+				})();
+				set_spec_msg();
+				update_table_when_click_li();
+				set_active_class_to_li();
+				// console.log(attrValuesArr);
+				// console.log(sp_spec_default_data);
+				// console.log(will_update_table_data);
+			};
+		})();
+		//定义一个函数用于实现为规格下面的li标签设置active样式
+		function set_active_class_to_li(){
+			$("#mup-spec .mup-spec__item").each(function(){
+				var $index = $("#mup-spec .mup-spec__item").index($(this));
+				//获取当前dom下面的li标签
+				var $li_list = $(this).find('li');
+				$li_list.each(function(){
+					var $this = $(this);
+					var $origin_data = $this.attr('origin-data');
+					$(sp_spec_default_data).each(function(){
+						var $attrValue = $(this)[0].attrValues.split(';');
+						for(var i = 0,len = $attrValue.length;i<len;i++){
+							if($attrValue[i].replace(/^.*:/gi,'') == $origin_data){
+								$this.addClass('active');
+							};
+						};
+					});
+				});
+			});
+		};
+
+		function set_spec_msg(){
+			var arr = sp_spec_default_data;
+			//update_table_data_model
+			for(var i = 0,len = arr.length;i<len;i++){
+				var obj = {};
+				var attrValue = arr[i].attrValues.split(';');
+				obj.dataArray = [];
+				for(var j = 0,le1 = attrValue.length;j<le1;j++){
+					obj.dataArray.push(attrValue[j].replace(/^.*:/gi,''));
+				};
+				obj.jg = arr[i].price;
+				obj.bm = arr[i].goodsCode;
+				obj.kc = arr[i].skuStock;
+				update_table_data_model.push(obj);
+			};
+			// console.log(update_table_data_model);
+		};
 		//非正常关闭弹框
 		$("#close_tk").click(function(){
 			if(!is_current_multple_level()){
@@ -240,30 +322,35 @@
 				origin_mock_data = JSON.parse(JSON.stringify(alternative_models_data));
 			};
 			if(is_data_change){
-				//清空缓存数组
-				update_table_data_model = [];
-				$("#sp__table").empty();
-				$("#mup-spec").empty();
 				if(isFirstTimeAddMulLevel){
 					$("#primary_data_wrap").css('display','none');
 					$("#sp__table").empty();
-					$("#change_wrap1").css('display','block');
+					// $("#change_wrap1").css('display','block');
 					$("#change_wrap1").css('display','none');				
 					isFirstTimeAddMulLevel = false;
 				};
-				update_table();
-				var crr = get_mul_level_arr();
-				will_update_table_data = [];
-				for(var jn = 0,jlen = crr.length;jn<jlen;jn++){
-					var jobj = {};
-					jobj.model_name = crr[jn];
-					jobj.alternative_data = [];
-					will_update_table_data.push(jobj);
-				};
-				to_render_model();
+
+				init_table_spec();
 			};
 
 		});
+		//初始化页面显示
+		function init_table_spec(){
+			//清空缓存数组
+			update_table_data_model = [];
+			$("#sp__table").empty();
+			$("#mup-spec").empty();
+			update_table();
+			var crr = get_mul_level_arr();
+			will_update_table_data = [];
+			for(var jn = 0,jlen = crr.length;jn<jlen;jn++){
+				var jobj = {};
+				jobj.model_name = crr[jn];
+				jobj.alternative_data = [];
+				will_update_table_data.push(jobj);
+			};
+			to_render_model();
+		};
 		function will_data_update(){
 			var crr = get_mul_level_arr();
 			will_update_table_data = [];
@@ -358,6 +445,7 @@
 				if(arr.length == brr.length &&　!is_null){
 					// var r = allPossibleCases(arr);
 					var rr = combinations(arr);
+					console.log(rr);
 					var tempArr = (function(){
 						var arr = [];
 						for(var i = 0,len = rr.length;i<len;i++){
@@ -442,7 +530,7 @@
 					break;
 				};
 			};
-			console.log(update_table_data_model);
+			// console.log(update_table_data_model);
 		};
 		//用户更新商品属性
 		$("#mup-spec").on('click','ul li',function(){
@@ -558,6 +646,7 @@
 		$("#change_wrap2 button").click(function(){
 			origin_mock_data = JSON.parse(JSON.stringify(alternative_models_data));
 			$("#tk").fadeIn('slow');
+			update_tk_list();
 			$("#a_m li").each(function(){
 				var type = $(this).attr('origin-data');
 				for(var i= 0,len = alternative_models_data.length;i<len;i++){
