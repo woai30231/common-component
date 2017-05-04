@@ -1,0 +1,289 @@
+<!doctype html>
+<html>
+<head>
+	<!-- 是否启动webapp功能，会删除默认的苹果工具栏和菜单栏。 -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<!-- 当启动webapp功能时，显示手机信号、时间、电池的顶部导航栏的颜色。默认值为default（白色），可以定为black（黑色）和black-translucent（灰色半透明）。这个主要是根据实际的页面设计的主体色为搭配来进行设置。 -->
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<!-- 忽略页面中的数字识别为电话号码、email识别 -->
+	<meta name="format-detection" content="telephone=no, email=no">
+	<!-- 启用360浏览器的极速模式(webkit) -->
+	<meta name="renderer" content="webkit">
+	<!-- 针对手持设备优化，主要是针对一些老的不识别viewport的浏览器，比如黑莓 -->
+	<meta name="HandheldFriendly" content="true">
+	<!-- 微软的老式浏览器 -->
+	<meta name="MobileOptimized" content="320">
+	<!-- uc强制竖屏 -->
+	<meta name="screen-orientation" content="portrait">
+	<!-- QQ强制竖屏 -->
+	<meta name="x5-orientation" content="portrait">
+	<!-- UC强制全屏 -->
+	<meta name="full-screen" content="yes">
+	<!-- QQ强制全屏 -->
+	<meta name="x5-fullscreen" content="true">
+	<!-- UC应用模式 -->
+	<meta name="browsermode" content="application">
+	<!-- QQ应用模式 -->
+	<meta name="x5-page-mode" content="app">
+	<!-- windows phone 点击无高光 -->
+	<meta name="msapplication-tap-highlight" content="no">
+	<!-- 网页不会被缓存 -->
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Cache-Control" content="no-cache">
+	<meta http-equiv="Expires" content="0">
+
+
+
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1.0"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+	<meta name="render" content="webkit"/>
+	<meta name="description" content=""/>
+	<meta name="Keywords" content=""/>
+	<title>积分兑换——抽奖</title>
+	<link rel="stylesheet" type="text/css" href="./css/reset.css"/>
+	<link rel="stylesheet" type="text/css" href="./css/integral.css"/>
+	<script type="text/javascript">
+		(function(){
+			//屏幕匹配
+			var doc = document.body || document.documentElement;
+			var _width = doc.offsetWidth;
+			_width = _width>640?640:_width;
+			doc.style.fontSize = _width/6.4 + 'px';
+
+			//手机屏幕点击触摸提示
+			function addEvent(dom,type,handler){
+				return dom.addEventListener?dom.addEventListener(type,handler,false):dom.attactEvent("on"+type,handler);
+			};
+			addEvent(window,'touchstart',function(){});
+		})();
+	</script>
+</head>
+<body>
+	
+	<div class="JF JF-p1">
+
+
+	<!--title-->
+		<div class="JF-p1__wrap">
+			<img src="./images/JF-P4_01.jpg" class="img-responsive"/>
+			<div class="JF-p1__content">
+				<strong class="JF-p1__hiddentext jt_tips">思埠集团</strong>
+				<h1 class="JF-p1__hiddentext bt_tips">小积分抽大奖</h1>
+			</div>
+		</div>
+
+
+	<!--抽奖-->
+		<div class="JF-p1__wrap">
+			<img src="./images/JF-P4_04.jpg" class="img-responsive"/>
+			<div class="JF-circle JF-circle_image" id="rotate1">
+				<!--奖品圈-->	
+				<div class="JF-circle_image JF-circle__prize" id="rotate2">
+				</div>
+				<!--抽奖按钮-->
+				<a class="JF-circle_image JF-circle__btn" id="rotate3" href="javascript:void(0);" title="抽奖">抽奖</a>
+			</div>
+		</div>	
+
+
+	<!--添加操作-->
+		<div class="JF-p1__wrap">
+			<img src="./images/JF-P4_03.jpg" class="img-responsive"/>
+			<div class="JF-p1__content">
+				<h2 class="JF-p1__hiddentext jt_tips">抽奖活动规则</h2>
+				<div class="JF-p1__hiddentext bt_tips">
+					<p>1、每次抽奖需要扣除5积分，扣除的积分不退还，每天参与抽奖次数不限;</p>
+					<p>2、中奖积分直接发放到中奖用户的积分账户，具体查看积分明细。</p>
+					<p>3、如抽中实物奖励，请在弹出的输入栏中如实填写个人信息，包括姓名、电话、地址、邮编</p>
+					<p>4、实物奖品会在7个工作日内发放。</p>
+				</div>
+			</div>
+		</div>	
+
+
+
+	</div>
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script type="text/javascript">
+	//js动画
+	//奖品情况
+	var prize_data = [
+		{
+			code:1,
+			angle:25,
+			name:'5100冰泉水润喷雾'
+		},
+		{
+			code:2,
+			angle:-25,
+			name:'5积分'
+		},
+		{
+			code:3,
+			angle:-70,
+			name:'我的美丽日志纳豆面膜'
+		},
+		{
+			code:4,
+			angle:-115,
+			name:'谢谢参与'
+		},
+		{
+			code:5,
+			angle:-160,
+			name:'创业基金800元'
+		},
+		{
+			code:6,
+			angle:160,
+			name:'10积分'
+		},
+		{
+			code:7,
+			angle:115,
+			name:'nak奢享香水沐浴露'
+		},
+		{
+			code:8,
+			angle:70,
+			name:'意大利尼卡卫生巾'
+		}
+	];
+	$(function(){
+		var $rotate3 = $('#rotate3')[0];
+		var $rotate2 = $("#rotate2")[0];
+		var $rotate1 = $("#rotate1");
+
+		//指针初始角度
+		var pinterInitAngle = 0;
+		var pointerSpeed = 0;
+		var pointerAngle = 0;
+		//奖品转盘初始角度
+		var prizeRotaryTableAngle = 0;
+		var prizeSpeed = 0;
+		var prizeRotaryTable = 0;
+
+		//当前所中奖品信息
+		var currentPrize = null;
+
+		//外盘定时器
+		var outDiskTimer = 0,
+		outDiskDiffTimer = parseInt(3000/30),
+		outShowImg1 = false;
+
+		//根据奖品编码设置指针指向
+		function LuckyDraw(prizeCode){
+			//返回奖品信息
+			currentPrize = getPrizeMsg(prizeCode);
+			//得到转盘应该转多少转
+			var rotateNum = getRandomNumber(3,6);
+			//知道指针应该转多少盘，应该币转盘的转的转数少
+			var pointerNum = getRandomNumber(2,4);
+			//得到奖品--转盘应该转的的角度
+			prizeRotaryTable = rotateNum * 360 + currentPrize.angle;
+			//奖品转盘的速度 3秒， 每秒60帧 所有除以180
+			prizeSpeed = parseInt(prizeRotaryTable / 180);
+			//得到指针应该转的角度
+			pointerAngle = pointerNum * 360;
+			//指针的速度
+			pointerSpeed = parseInt(pointerAngle / 180);
+
+			//初始化相关角度
+			pinterInitAngle = 0;
+			prizeRotaryTableAngle = 0;
+			outDiskTimer = 0;
+			//启动动画
+			window.requestAnimationFrame(startPointerAnimation);
+			window.requestAnimationFrame(startRotaryTable);
+			outDiscFlash();
+		};
+		//外盘灯光闪烁
+		function outDiscFlash(){
+			outDiskTimer += outDiskDiffTimer;
+			outShowImg1 = !outShowImg1;
+			if(outShowImg1){
+				$rotate1.css('backgroundImage','url(./images/JF-circle2.png)');
+			}else{
+				$rotate1.css('backgroundImage','url(./images/JF-circle3.png)');
+			};
+			if(outDiskTimer < 3000){
+				setTimeout(outDiscFlash,100);
+			}else{
+				$rotate1.css('backgroundImage','url(./images/JF-circle1.png)');
+			};
+		};
+		//启动动画--指针
+		function startPointerAnimation(){
+			pinterInitAngle += pointerSpeed;
+			css3Compatible($rotate3,'Transform','rotate('+pinterInitAngle+'deg)');
+			if(pinterInitAngle <= pointerAngle){
+				window.requestAnimationFrame(startPointerAnimation);
+			}else{
+				css3Compatible($rotate3,'Transform','rotate('+pointerAngle+'deg)');
+				setTimeout(function(){
+					alert('你所中奖品是:'+currentPrize.name);
+				},500);
+			};
+		};
+		//启动动画--转盘
+		function startRotaryTable(){
+			prizeRotaryTableAngle += prizeSpeed;
+			css3Compatible($rotate2,'Transform','rotate('+prizeRotaryTableAngle+'deg)');
+			if(prizeRotaryTableAngle < prizeRotaryTable){
+				window.requestAnimationFrame(startRotaryTable);
+			}else{
+				css3Compatible($rotate2,'Transform','rotate('+prizeRotaryTable+'deg)');
+			};
+		};
+		//根据奖品的编码返回奖品信息
+		function getPrizeMsg(code){
+			var obj = null;
+			for(var i = 0,len = prize_data.length;i<len;i++){
+				if(code == prize_data[i].code){
+					obj = prize_data[i];
+					break;
+				};
+			};
+			return obj;
+		};
+		//产生一个随机数，用于算出当前转盘需要转多少盘，最小为4，最大为8
+		function getRandomNumber(min,max){
+			return Math.floor(Math.random() * (max-min)) + min;
+		};
+		//启动转盘之前，用于将转盘重置到初始地位
+		function resetRotaryTable(time){
+			$("#rotate1").css('backgroundImage','url(./images/JF-circle1.png)');
+			var rotate2 = $('#rotate2')[0];
+			var rotate3 = $('#rotate3')[0];
+			css3Compatible(rotate2,'Transform','rotate(0deg)')
+			css3Compatible(rotate3,'Transform','rotate(0deg)')
+		};
+		function css3Compatible(dom,_class,classValue){
+			var arr = ['Webkit','Moz','Ms','O',''];
+			for(var i = 0,len = arr.length;i<len;i++){
+				dom.style[arr[i]+_class] = classValue;
+			};
+		};
+
+
+
+
+
+
+
+		$("#rotate3").click(function(){
+			//重置转盘
+			resetRotaryTable();
+			LuckyDraw(3);
+		});
+	});
+
+	
+
+
+
+
+</script>
+</body>
+</html>
