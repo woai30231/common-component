@@ -20,3 +20,5 @@
 * [加载进度条组件](https://github.com/woai30231/common-component/tree/master/3)
 
 * [商品规格属性组件代码](https://github.com/woai30231/common-component/tree/master/4)
+
+* [转盘抽奖](https://github.com/woai30231/common-component/tree/master/5)
