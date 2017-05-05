@@ -252,3 +252,13 @@ html,body{
 	-o-transform-origin:center;
 	transform-origin:center;
 }
+.JF-circle__mask{
+	position:absolute;
+	left:0px;
+	top:0px;
+	right:0px;
+	bottom:0px;
+	z-index:999;
+	background-color:rgba(0,0,0,0);
+	display:none;
+}
