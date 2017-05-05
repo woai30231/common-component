@@ -140,7 +140,7 @@
 
 		//外盘定时器
 		var outDiskTimer = 0,
-		outDiskDiffTimer = parseInt(3000/30),
+		outDiskDiffTimer = parseInt(3000/5),
 		outShowImg1 = false;
 
 		//根据奖品编码设置指针指向
@@ -179,7 +179,7 @@
 				$rotate1.css('backgroundImage','url(./images/JF-circle3.png)');
 			};
 			if(outDiskTimer < 3000){
-				setTimeout(outDiscFlash,100);
+				setTimeout(outDiscFlash,600);
 			}else{
 				$rotate1.css('backgroundImage','url(./images/JF-circle1.png)');
 			};
